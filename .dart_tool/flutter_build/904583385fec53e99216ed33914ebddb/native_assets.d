@@ -1,0 +1,1 @@
+ C:\\Users\\Acer\\AndroidStudioProjects\\shoe_store\\.dart_tool\\flutter_build\\904583385fec53e99216ed33914ebddb\\native_assets.yaml: 
