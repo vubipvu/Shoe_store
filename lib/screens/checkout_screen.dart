@@ -41,7 +41,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             ListTile(
-              title: Text('Thanh toán bằng tiền mặt'),
+              title: Text('Thanh toán khi nhận hàng'),
               leading: Radio(
                 value: 'cash',
                 groupValue: selectedPaymentMethod,

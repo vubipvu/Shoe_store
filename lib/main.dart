@@ -1,31 +1,26 @@
+// lib/main.dart
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
-import 'models/product.dart';
+import 'package:sqflite/sqflite.dart';
+import 'screens/product_list_screen.dart';
+import 'screens/product_add_screen.dart';
 import 'screens/cart_screen.dart';
 import 'screens/checkout_screen.dart';
-import 'screens/product_details_screen.dart';
-import 'screens/product_list_screen.dart';
-import 'widgets/product_card.dart';
 import 'models/cart_item.dart';
-void main() {
+void main() async {
+  // Đảm bảo Flutter bindings được khởi tạo
+  WidgetsFlutterBinding.ensureInitialized();
+
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final List<CartItem> cartItems = []; // Khởi tạo danh sách giỏ hàng rỗng
-
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Shoe Shop',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: HomeScreen(cartItems: cartItems),
+      title: 'Shoe Store',
+      home: ProductListScreen(),
     );
   }
 }
