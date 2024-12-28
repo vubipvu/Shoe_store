@@ -6,6 +6,8 @@ import 'screens/product_add_screen.dart';
 import 'screens/cart_screen.dart';
 import 'screens/checkout_screen.dart';
 import 'models/cart_item.dart';
+import 'models/shipping_info.dart';
+import 'screens/ShippingInfoScreen.dart';
 void main() async {
   // Đảm bảo Flutter bindings được khởi tạo
   WidgetsFlutterBinding.ensureInitialized();

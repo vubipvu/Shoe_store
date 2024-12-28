@@ -44,12 +44,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
     _loadProducts();
   }
 
-  void _addToCart(Product product) {
+  void _addToCart(Product product, double size) {
     setState(() {
-      _cartItems.add(product);
+      _cartItems.add(product); // Bạn có thể lưu thêm thông tin size nếu cần
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Đã thêm ${product.name} vào giỏ hàng!')),
+      SnackBar(content: Text('Đã thêm ${product.name} (size $size) vào giỏ hàng!')),
     );
   }
 
@@ -107,6 +107,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   IconButton(
                     icon: Icon(Icons.delete, color: Colors.red),
                     onPressed: () async {
+                      // Hiển thị hộp thoại xác nhận trước khi xóa
                       final confirm = await showDialog<bool>(
                         context: context,
                         builder: (ctx) => AlertDialog(
@@ -132,6 +133,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 ],
               ),
             ),
+            // Giá sản phẩm
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Text(
@@ -147,6 +149,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
