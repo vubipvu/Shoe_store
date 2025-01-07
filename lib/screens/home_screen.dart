@@ -10,7 +10,6 @@ import 'package:shoe_store/screens/man_hinh_dang_nhap.dart';
 import 'rules_screen.dart';
 import 'feedback_screen.dart';
 import 'feedback_list_screen.dart';
-
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -111,7 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     children: [
                       ClipRRect(
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                        borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(12)),
                         child: Image.network(
                           product.imageUrl,
                           height: 130,
@@ -159,7 +159,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
-
   Widget _buildDiscountSection() {
     final List<Map<String, String>> discountCodes = [
       {'code': 'DISCOUNT20', 'description': 'Giảm 20% cho tất cả đơn hàng'},
@@ -243,6 +242,66 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          UserAccountsDrawerHeader(
+            decoration: BoxDecoration(color: Colors.deepOrange),
+            accountName: Text(
+              'Khách hàng: demo',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            accountEmail: Text(
+              'Email: demo@gmail.com',
+              style: TextStyle(fontSize: 14),
+            ),
+            currentAccountPicture: CircleAvatar(
+              backgroundImage: NetworkImage(
+                  'https://i.ytimg.com/vi/CXSko9ySpyo/maxresdefault.jpg'),
+            ),
+          ),
+          _buildDrawerItem(Icons.home, 'Trang chủ', () {
+            Navigator.pop(context);
+          }),
+          _buildDrawerItem(Icons.store , 'Sản Phẩm', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ProductListScreen()),
+            );
+          }),
+          _buildDrawerItem(Icons.receipt, 'Hóa đơn', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => InvoiceScreen()),
+            );
+          }),
+          _buildDrawerItem(Icons.store , 'Quy Định ', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => RulesScreen()),
+            );
+          }),
+          _buildDrawerItem(Icons.store , 'Phản hồi', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => RulesScreen()),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem(IconData icon, String title, VoidCallback onTap) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.blueAccent),
+      title: Text(title),
+      onTap: onTap,
+    );
+  }
+
   Widget _buildBody() {
     return _isLoading
         ? Center(child: CircularProgressIndicator())
@@ -251,8 +310,8 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           _buildBanner(),
           _buildHorizontalProductList(),
-          _buildDiscountSection(), // Thêm mã giảm giá dưới danh sách sản phẩm
-          _buildShopIntroduction(),
+           _buildDiscountSection(),
+          _buildShopIntroduction(), // Thêm phần giới thiệu
         ],
       ),
     );
@@ -263,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> {
       margin: EdgeInsets.all(16),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.black,
+        color: Colors.black, // Nền đen
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -281,7 +340,7 @@ class _HomeScreenState extends State<HomeScreen> {
             style: TextStyle(
               fontSize: 25,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.white, // Chữ màu trắng
             ),
           ),
           SizedBox(height: 10),
@@ -289,7 +348,7 @@ class _HomeScreenState extends State<HomeScreen> {
             'Chào mừng bạn đến với Shoe Store! Chúng tôi chuyên cung cấp các mẫu giày hiện đại, phong cách và chất lượng cao. Với nhiều năm kinh nghiệm, chúng tôi cam kết mang đến sự hài lòng cho khách hàng.',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.white,
+              color: Colors.white, // Chữ màu trắng
             ),
           ),
           SizedBox(height: 10),
@@ -297,12 +356,47 @@ class _HomeScreenState extends State<HomeScreen> {
             'Địa chỉ: 123 Đường ABC, Quận 1, TP.HCM\nHotline: 0123 456 789\nEmail: support@shoestore.com',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.white,
+              color: Colors.white, // Chữ màu trắng
             ),
           ),
         ],
       ),
     );
+  }
+
+
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    switch (index) {
+      case 1:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ProductListScreen()),
+        );
+        break;
+      case 2:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => CartScreen(cartItems: _cartItems)),
+        );
+        break;
+      case 3:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductAddScreen(
+              onAddProduct: (product) async {
+                await DatabaseService.instance.createProduct(product);
+                _loadProducts();
+              },
+            ),
+          ),
+        );
+        break;
+    }
   }
 
   @override
@@ -316,9 +410,65 @@ class _HomeScreenState extends State<HomeScreen> {
             fontSize: 22,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.blueAccent,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.login),
+            tooltip: 'Đăng nhập',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ManHinhDangNhap()),
+              );
+            },
+          ),
+        ],
       ),
+
+      drawer: _buildDrawer(),
       body: _buildBody(),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.blueAccent,
+        unselectedItemColor: Colors.grey,
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
+          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Sản phẩm'),
+          BottomNavigationBarItem(
+            icon: Stack(
+              children: [
+                Icon(Icons.shopping_cart),
+                if (_cartItems.isNotEmpty)
+                  Positioned(
+                    right: 0,
+                    child: CircleAvatar(
+                      radius: 8,
+                      backgroundColor: Colors.red,
+                      child: Text(
+                        '${_cartItems.length}',
+                        style: TextStyle(fontSize: 10, color: Colors.white),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            label: 'Giỏ hàng',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.add_circle), label: 'Thêm'),
+        ],
+      ),
+    );
+  }
+}
+
+class InvoiceScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Hóa đơn')),
+      body: Center(child: Text('Danh sách hóa đơn')),
     );
   }
 }
