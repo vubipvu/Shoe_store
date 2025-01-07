@@ -4,7 +4,7 @@
             "outputFile": "com.example.shoe_store.app-mergeDebugResources-24:/values-ca/values-ca.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Acer\\.gradle\\caches\\transforms-4\\6f970293da498eb5746f8b078aa8d946\\transformed\\core-1.13.1\\res\\values-ca\\values-ca.xml",
+                    "source": "C:\\Users\\asus\\.gradle\\caches\\transforms-4\\df80edcf123dec11bae45d1b280654ad\\transformed\\core-1.13.1\\res\\values-ca\\values-ca.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",

@@ -6,7 +6,7 @@ class DichVuXacThuc {
   Future<bool> dangKy(Users nguoiDung) async {
     try {
       // Giả lập việc đăng ký, bạn có thể thay thế phần này bằng gọi API thật sự
-      print('Đang đăng ký người dùng: ${nguoiDung.tenDangNhap}');
+      print('Đang đăng ký người dùng: ${nguoiDung.username}');
 
       // Giả sử đăng ký thành công, trả về true
       return true;

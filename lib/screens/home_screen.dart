@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../models/product.dart';
 import 'cart_screen.dart';
 import 'product_add_screen.dart';
@@ -6,6 +7,9 @@ import 'product_detail_screen.dart';
 import 'product_list_screen.dart';
 import '../database/database_helper.dart';
 import 'package:shoe_store/screens/man_hinh_dang_nhap.dart';
+import 'rules_screen.dart';
+import 'feedback_screen.dart';
+import 'feedback_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -26,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadProducts() async {
     setState(() => _isLoading = true);
-    final dbProducts = await ProductDatabase.instance.getProducts();
+    final dbProducts = await DatabaseService.instance.getProducts();
     setState(() {
       _products = dbProducts;
       _isLoading = false;
@@ -107,8 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     children: [
                       ClipRRect(
-                        borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(12)),
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                         child: Image.network(
                           product.imageUrl,
                           height: 130,
@@ -157,45 +160,86 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildDrawer() {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+  Widget _buildDiscountSection() {
+    final List<Map<String, String>> discountCodes = [
+      {'code': 'DISCOUNT20', 'description': 'Giảm 20% cho tất cả đơn hàng'},
+      {'code': 'DISCOUNT10', 'description': 'Giảm 10% không giới hạn đơn hàng '},
+      {'code': 'XAKHO', 'description': 'Xả xập kho với voucher giảm 50%'},
+    ];
+
+    return Container(
+      margin: EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          UserAccountsDrawerHeader(
-            decoration: BoxDecoration(color: Colors.deepOrange),
-            accountName: Text(
-              'Khách hàng: demo',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            accountEmail: Text(
-              'Email: demo@gmail.com',
-              style: TextStyle(fontSize: 14),
-            ),
-            currentAccountPicture: CircleAvatar(
-              backgroundImage: NetworkImage(
-                  'https://i.ytimg.com/vi/CXSko9ySpyo/maxresdefault.jpg'),
+          Text(
+            'Mã giảm giá',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
             ),
           ),
-          _buildDrawerItem(Icons.home, 'Trang chủ', () {
-            Navigator.pop(context);
-          }),
-          _buildDrawerItem(Icons.receipt, 'Hóa đơn', () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => InvoiceScreen()),
-            );
-          }),
+          SizedBox(height: 10),
+          Column(
+            children: discountCodes.map((discount) {
+              return Container(
+                margin: EdgeInsets.symmetric(vertical: 8),
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white70,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(50),
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                  border: Border.all(color: Colors.blueAccent, width: 2),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          discount['code']!,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueAccent,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          discount['description']!,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.copy, color: Colors.blueAccent),
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: discount['code']!));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Đã sao chép mã: ${discount['code']}'),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
         ],
       ),
-    );
-  }
-
-  Widget _buildDrawerItem(IconData icon, String title, VoidCallback onTap) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.blueAccent),
-      title: Text(title),
-      onTap: onTap,
     );
   }
 
@@ -207,42 +251,58 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           _buildBanner(),
           _buildHorizontalProductList(),
+          _buildDiscountSection(), // Thêm mã giảm giá dưới danh sách sản phẩm
+          _buildShopIntroduction(),
         ],
       ),
     );
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-    switch (index) {
-      case 1:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ProductListScreen()),
-        );
-        break;
-      case 2:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => CartScreen(cartItems: _cartItems)),
-        );
-        break;
-      case 3:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProductAddScreen(
-              onAddProduct: (product) async {
-                await ProductDatabase.instance.createProduct(product);
-                _loadProducts();
-              },
+  Widget _buildShopIntroduction() {
+    return Container(
+      margin: EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.white.withOpacity(0.1),
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Shoe_Store',
+            style: TextStyle(
+              fontSize: 25,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
-        );
-        break;
-    }
+          SizedBox(height: 10),
+          Text(
+            'Chào mừng bạn đến với Shoe Store! Chúng tôi chuyên cung cấp các mẫu giày hiện đại, phong cách và chất lượng cao. Với nhiều năm kinh nghiệm, chúng tôi cam kết mang đến sự hài lòng cho khách hàng.',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Địa chỉ: 123 Đường ABC, Quận 1, TP.HCM\nHotline: 0123 456 789\nEmail: support@shoestore.com',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -256,65 +316,9 @@ class _HomeScreenState extends State<HomeScreen> {
             fontSize: 22,
           ),
         ),
-        backgroundColor: Colors.blueAccent,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.login),
-            tooltip: 'Đăng nhập',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ManHinhDangNhap()),
-              );
-            },
-          ),
-        ],
+        backgroundColor: Colors.white,
       ),
-
-      drawer: _buildDrawer(),
       body: _buildBody(),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.blueAccent,
-        unselectedItemColor: Colors.grey,
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Sản phẩm'),
-          BottomNavigationBarItem(
-            icon: Stack(
-              children: [
-                Icon(Icons.shopping_cart),
-                if (_cartItems.isNotEmpty)
-                  Positioned(
-                    right: 0,
-                    child: CircleAvatar(
-                      radius: 8,
-                      backgroundColor: Colors.red,
-                      child: Text(
-                        '${_cartItems.length}',
-                        style: TextStyle(fontSize: 10, color: Colors.white),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            label: 'Giỏ hàng',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.add_circle), label: 'Thêm'),
-        ],
-      ),
-    );
-  }
-}
-
-class InvoiceScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Hóa đơn')),
-      body: Center(child: Text('Danh sách hóa đơn')),
     );
   }
 }

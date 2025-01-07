@@ -1,33 +1,33 @@
 class Users {
-  final String tenDangNhap;
-  final String matKhau;
-  final String email;
-  final String soDienThoai;
+  final int? id; // ID tự tăng
+  final String username; // Tên đăng nhập
+  final String email; // Email
+  final String password; // Mật khẩu
 
   Users({
-    required this.tenDangNhap,
-    required this.matKhau,
+    this.id,
+    required this.username,
     required this.email,
-    required this.soDienThoai,
+    required this.password,
   });
 
-  // Chuyển đối tượng thành JSON để truyền dữ liệu
-  Map<String, dynamic> toJson() {
-    return {
-      'tenDangNhap': tenDangNhap,
-      'matKhau': matKhau,
-      'email': email,
-      'soDienThoai': soDienThoai,
-    };
+  // Chuyển từ Map sang object Users
+  factory Users.fromMap(Map<String, dynamic> map) {
+    return Users(
+      id: map['id'],
+      username: map['username'],
+      email: map['email'],
+      password: map['password'],
+    );
   }
 
-  // Hàm khởi tạo từ JSON
-  factory Users.fromJson(Map<String, dynamic> json) {
-    return Users(
-      tenDangNhap: json['tenDangNhap'],
-      matKhau: json['matKhau'],
-      email: json['email'],
-      soDienThoai: json['soDienThoai'],
-    );
+  // Chuyển object Users sang Map
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'username': username,
+      'email': email,
+      'password': password,
+    };
   }
 }
